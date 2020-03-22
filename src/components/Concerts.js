@@ -28,13 +28,13 @@ let mapStateToProps = state => {
     return { concerts: state.concerts };
 };
 class allConcerts extends Component {
-    // state = {
-    //     concerts: []
-    // };
+    state = {
+        concerts: []
+    };
 
     componentDidMount() {
         axios
-            .get('http://localhost:5000/concerts/')
+            .get('http://localhost:8080/concerts/')
             .then(response => {
                 this.setState({ concerts: response.data });
             })
@@ -43,7 +43,7 @@ class allConcerts extends Component {
             });
     }
     concertList() {
-        return concerts.map(currentConcert => {
+        return this.state.concerts.map(currentConcert => {
             return (
                 <Concert
                     concert={currentConcert}
@@ -56,7 +56,7 @@ class allConcerts extends Component {
 
     deleteConcert = id => {
         axios
-            .delete('http://localhost:5000/concerts/' + id)
+            .delete('http://localhost:8080/concerts/' + id)
             .then(res => console.log(res.data));
         this.setState({
             concerts: this.state.concerts.filter(el => el._id !== id)

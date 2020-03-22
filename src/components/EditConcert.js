@@ -13,7 +13,7 @@ class EditConcert extends Component {
     };
     componentDidMount() {
         axios
-            .get('http://localhost:5000/concerts' + this.props.match.params.id)
+            .get('http://localhost:8080/concerts' + this.props.match.params.id)
             .then(response => {
                 this.setState({
                     username: response.data.username,
@@ -28,7 +28,7 @@ class EditConcert extends Component {
             });
 
         axios
-            .get('http://localhost:5000/users/')
+            .get('http://localhost:8080/users/')
             .then(response => {
                 if (response.data.length > 0) {
                     this.setState({
@@ -79,7 +79,7 @@ class EditConcert extends Component {
 
         axios
             .post(
-                'http://localhost:5000/concerts/update/' +
+                'http://localhost:8080/concerts/update/' +
                     this.props.match.params.id,
                 concert
             )
