@@ -1,5 +1,5 @@
 import { ADD_CONCERT } from '../constants/action-types';
 
-export function addConcert(payload) {
+export const addConcert = payload => {
     return { type: ADD_CONCERT, payload };
-}
+};

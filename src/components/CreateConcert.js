@@ -3,8 +3,17 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
 import '../css/concert.scss';
+import { addConcert } from '../actions/index';
+import { connect } from 'react-redux';
 
-class CreateConcert extends Component {
+// moment.js date picker
+
+function mapDispatchToProps(dispatch) {
+    return {
+        addConcert: concert => dispatch(addConcert(concert))
+    };
+}
+class Form extends Component {
     state = {
         username: '',
         artist: '',
@@ -28,42 +37,49 @@ class CreateConcert extends Component {
                 console.log(error);
             });
     }
-    onChangeName = e => {
-        this.setState({ name: e.target.value });
+    handleChange = e => {
+        this.setState({ [e.target.id]: e.target.value });
     };
-    onChangeArtist = e => {
-        this.setState({ artist: e.target.value });
-    };
-    onChangeTime = e => {
-        this.setState({ time: e.target.value });
-    };
-    onChangeDate = date => {
-        this.setState({ date: date });
-    };
-    onChangeLocation = e => {
-        this.setState({ location: e.target.value });
-    };
-    onSubmit = e => {
+
+    handleSubmit = e => {
         e.preventDefault();
-        const concert = {
-            name: this.state.name,
-            artist: this.state.artist,
-            time: this.state.time,
-            date: this.state.date,
-            location: this.state.location
-        };
-        console.log(concert);
+        const { name, artist, time, date, location } = this.state;
+        // const concert = {
+        //     name: this.state.name,
+        //     artist: this.state.artist,
+        //     time: this.state.time,
+        //     date: this.state.date,
+        //     location: this.state.location
+        // };
+        // console.log(concert);
+        this.props.addConcert({ name, artist, time, date, location });
+
         axios
-            .post('http://localhost:5000/concerts/add', concert)
+            .post('http://localhost:5000/concerts/add', {
+                name,
+                artist,
+                time,
+                date,
+                location
+            })
             .then(res => console.log(res.data));
         window.location = '/';
+
+        this.setState({
+            username: '',
+            artist: '',
+            time: '',
+            date: new Date(),
+            location: '',
+            users: []
+        });
     };
 
     render() {
         return (
             <div className="new-concert">
                 <h1>Make a New Concert</h1>
-                <form onSubmit={this.onSubmit}>
+                <form onSubmit={this.handleSubmit}>
                     <div className="form-group">
                         <label>Name: </label>
                         <input
@@ -71,7 +87,8 @@ class CreateConcert extends Component {
                             required
                             className="form-control"
                             value={this.state.name}
-                            onChange={this.onChangeName}
+                            id="name"
+                            onChange={this.handleChange}
                         ></input>
                     </div>
                     <div className="form-group">
@@ -81,7 +98,8 @@ class CreateConcert extends Component {
                             required
                             className="form-control"
                             value={this.state.artist}
-                            onChange={this.onChangeArtist}
+                            id="artist"
+                            onChange={this.handleChange}
                         ></input>
                     </div>
                     <div className="form-group">
@@ -91,7 +109,8 @@ class CreateConcert extends Component {
                             required
                             className="form-control"
                             value={this.state.time}
-                            onChange={this.onChangeTime}
+                            id="time"
+                            onChange={this.handleChange}
                         />
                     </div>
                     <div className="form-group">
@@ -99,7 +118,9 @@ class CreateConcert extends Component {
                         <div>
                             <DatePicker
                                 selected={this.state.date}
-                                onChange={this.onChangeDate}
+                                value={this.state.date}
+                                id="date"
+                                onChange={this.handleChange}
                             />
                         </div>
                     </div>
@@ -109,7 +130,8 @@ class CreateConcert extends Component {
                             type="text"
                             className="form-control"
                             value={this.state.location}
-                            onChange={this.onChangeLocation}
+                            id="location"
+                            onChange={this.handleChange}
                         />
                     </div>
 
@@ -126,4 +148,5 @@ class CreateConcert extends Component {
     }
 }
 
+const CreateConcert = connect(null, mapDispatchToProps)(Form);
 export default CreateConcert;
