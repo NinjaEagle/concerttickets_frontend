@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import '../css/login.scss';
 import { AuthContext } from '../App';
 import * as firebase from 'firebase';
+import { NavLink } from 'react-router-dom';
+import Signup from './Signup';
 
 const Login = ({ history }) => {
     const [email, setEmail] = useState('');
@@ -78,6 +80,9 @@ const Login = ({ history }) => {
                 <button type="submit">Login</button>
                 <span>{error}</span>
             </form>
+            <NavLink to="/signup" className="signup">
+                Not a user of our site? Signup here!
+            </NavLink>
         </div>
     );
 };

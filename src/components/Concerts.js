@@ -2,57 +2,75 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-
-const Concert = props => (
-    <tr>
-        <td>{props.concert.name}</td>
-        <td>{props.concert.artist}</td>
-        <td>{props.concert.time}</td>
-        <td>{props.concert.date.substring(0, 10)}</td>
-        <td>{props.concert.location}</td>
-        <td>
-            <Link to={'/edit/' + props.concert._id}>edit</Link> |{' '}
-            <a
-                href="#"
-                onClick={() => {
-                    props.deleteConcert(props.concert._id);
-                }}
-            >
-                delete
-            </a>
-        </td>
-    </tr>
-);
+import Filter from './Filter';
+import config from '../config.json';
+import { isCompositeComponent } from 'react-dom/test-utils';
+import ConcertsList from '../components/ConcertsList';
 
 let mapStateToProps = state => {
     return { concerts: state.concerts };
 };
 class allConcerts extends Component {
     state = {
-        concerts: []
+        concerts: [],
+        state: ''
     };
 
+    chosenParams = () => {};
+
+    // displayPage = () => {
+    //     //prevents pages from repeating
+    //     if (createdPagesAlready) return;
+    //     if (pages.length > 10) {
+    //         createPageButtons('<');
+    //     }
+    //     for (var i in pages) {
+    //         createPageButtons(Number(i) + Number(1));
+    //         if (i > 8) {
+    //             createPageButtons('>');
+    //             break;
+    //         }
+    //     }
+    // };
     componentDidMount() {
-        axios
-            .get('http://localhost:8080/concerts/')
-            .then(response => {
-                this.setState({ concerts: response.data });
-            })
-            .catch(error => {
-                console.log(error);
-            });
+        // axios
+        //     .get('http://localhost:8080/concerts/')
+        //     .then(response => {
+        //         this.setState({ concerts: response.data });
+        //     })
+        //     .catch(error => {
+        //         console.log(error);
+        //     });
     }
-    concertList() {
-        return this.state.concerts.map(currentConcert => {
-            return (
-                <Concert
-                    concert={currentConcert}
-                    deleteConcert={this.deleteConcert}
-                    key={currentConcert._id}
-                />
-            );
-        });
-    }
+
+    getStateId = term => {
+        console.log(term);
+        let queryURL = term;
+        let stateURL =
+            'https://edmtrain.com/api/locations?state=' + queryURL + '';
+        // fetch state events
+        fetch(
+            'https://edmtrain.com/api/locations?state=' +
+                queryURL +
+                '&client=' +
+                config.EDMTRAIN_CLIENT_KEY
+        )
+            .then(res => res.json())
+            .then(locationData => this.stateConcerts(locationData));
+        // this.stateConcerts(locationData))
+    };
+
+    stateConcerts = locationData => {
+        let locationId = locationData.data[0].id;
+        fetch(
+            'https://edmtrain.com/api/events?locationIds=' +
+                locationId +
+                '&client=' +
+                config.EDMTRAIN_CLIENT_KEY
+        )
+            .then(res => res.json())
+            .then(data => this.setState({ concerts: data }));
+    };
 
     deleteConcert = id => {
         axios
@@ -63,23 +81,19 @@ class allConcerts extends Component {
         });
     };
 
+    filterState = term => {
+        this.setState({ state: term });
+        this.getStateId(term);
+    };
+
     render() {
+        console.log(this.state);
         return (
             <div>
                 <div>
-                    <h1>Nearby Concerts</h1>
-                    <table className="table">
-                        <thead className="thead-light">
-                            <tr>
-                                <th>Name</th>
-                                <th>Artist</th>
-                                <th>Time</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody>{this.concertList()}</tbody>
-                    </table>
+                    <h1>Concerts Near You</h1>
+                    <Filter filterState={this.filterState} />
+                    <ConcertsList concertData={this.state.concerts} />
                 </div>
             </div>
         );
